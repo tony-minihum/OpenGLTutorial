@@ -38,16 +38,20 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Set vertex array.
-		static const GLfloat vtx[] = { 0.0f, 0.0f };
-		glVertexPointer(2, GL_FLOAT, 0, vtx); // glVertexPinter(size, type, stride, pointer);
+		static const GLfloat vtx[] = { 
+			-0.5f, -0.5f,
+			0.5f, 0.5f
+		};
+		glVertexPointer(2, GL_FLOAT, 0, vtx);	// glVertexPinter(size, type, stride, pointer);
+												// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
 
-		// Set point size, color
-		glPointSize(4.0f);
+		// Set line width, color
+		glLineWidth(4.0f);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// Set mode
 		glEnableClientState(GL_VERTEX_ARRAY);
-		glDrawArrays(GL_POINTS, 0, 1);  // glDrawArrays(mode, first, count);
+		glDrawArrays(GL_LINES, 0, 2);	// glDrawArrays(mode, first, count);
 
 		// Reset mode
 		glDisableClientState(GL_VERTEX_ARRAY);
