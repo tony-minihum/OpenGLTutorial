@@ -91,10 +91,10 @@ int main()
 												// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
 		
 		static const GLfloat texture_uv[] = {
-			0.0f, 0.0f,
-			1.0f, 0.0f,
+			0.0f, 1.0f,
 			1.0f, 1.0f,
-			0.0f, 1.0f
+			1.0f, 0.0f,
+			0.0f, 0.0f
 		};
 		glTexCoordPointer(2, GL_FLOAT, 0, texture_uv);
 
