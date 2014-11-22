@@ -45,14 +45,23 @@ int main()
 		};
 		glVertexPointer(2, GL_FLOAT, 0, vtx);	// glVertexPinter(size, type, stride, pointer);
 												// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		
+		static const GLfloat color[] = {
+			1.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 1.0f
+		};
+		glColorPointer(3, GL_FLOAT, 0, color);
 
 		// Set mode
 		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
 		glDrawArrays(GL_TRIANGLES, 0, 3);	// glDrawArrays(mode, first, count);
 
 		// Reset mode
 		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
 
 		glfwSwapBuffers();
 	}
