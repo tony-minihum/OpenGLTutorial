@@ -53,7 +53,7 @@ bool setupTexture(const GLuint id, const char* file, const int width, const int 
 	glTexParameteri(GL_TEXTURE_2D,
 		GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D,
-		GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 	GLfloat border_color[] = {
 		1.0f, 0.0f, 0.0f, 1.0f
