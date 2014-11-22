@@ -21,7 +21,7 @@
 #endif
 #endif
 
-bool setupTexture(const GLuint id, const char* file)
+bool setupTexture(const GLuint id, const char* file, const int width, const int height)
 {
 	std::ifstream fstr(file, std::ios::binary);
 
@@ -38,7 +38,7 @@ bool setupTexture(const GLuint id, const char* file)
 	glBindTexture(GL_TEXTURE_2D, id);
 
 	glTexImage2D(GL_TEXTURE_2D,        // glTexImage2D(GL_TEXTURE_2D,
-		0, GL_RGBA, 256, 256,          //   0, pixFormat, width, height, (width and height must be a power of 2)
+		0, GL_RGBA, width, height,     //   0, pixFormat, width, height, (width and height must be a power of 2)
 		0, GL_RGBA, GL_UNSIGNED_BYTE,  //   0, pixFormat, GL_UNSIGNED_BYTE,
 		&texture_buffer[0]);           //   pointer)
 
@@ -51,9 +51,15 @@ bool setupTexture(const GLuint id, const char* file)
 
 	// Set texture wrap mode.
 	glTexParameteri(GL_TEXTURE_2D,
-		GL_TEXTURE_WRAP_S, GL_REPEAT);
+		GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D,
-		GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+		GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	GLfloat border_color[] = {
+		1.0f, 0.0f, 0.0f, 1.0f
+	};
+	glTexParameterfv(GL_TEXTURE_2D,
+		GL_TEXTURE_BORDER_COLOR, border_color);
 
 	return true;
 }
@@ -80,7 +86,7 @@ int main()
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	
-	if (!setupTexture(texture_id, "sample.raw")) {
+	if (!setupTexture(texture_id, "sample2.raw", 32, 32)) {
 		glDeleteTextures(1, &texture_id);
 		glfwTerminate();
 		return EXIT_FAILURE;
@@ -114,10 +120,10 @@ int main()
 											// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
 		
 		static const GLfloat texture_uv[] = {
-			-2.5f, 0.0f,
-			2.5f, 0.0f,
-			2.5f, 5.0f,
-			-2.5f, 5.0f
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f
 		};
 		glTexCoordPointer(2, GL_FLOAT, 0, texture_uv);
 
