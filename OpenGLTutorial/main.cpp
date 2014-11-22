@@ -1,5 +1,10 @@
 #define GLFW_DLL
 
+#define GLEW_STATIC
+#if defined (_MSC_VER)
+#include <GL/glew.h>
+#endif
+
 #include <GL/glfw.h>
 #include <cstdlib>
 
@@ -9,6 +14,11 @@
 #if defined (_MSC_VER)
 #pragma comment(lib, "GLFWDLL.lib")
 #pragma comment(lib, "opengl32.lib")
+#ifdef _DEBUG
+#pragma comment(lib, "glew32sd.lib")
+#else
+#pragma comment(lib, "glew32s.lib")
+#endif
 #endif
 
 bool setupTexture(const GLuint id, const char* file)
@@ -38,6 +48,12 @@ bool setupTexture(const GLuint id, const char* file)
 	
 	// Set filter for reducing size of the texture.
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	// Set texture wrap mode.
+	glTexParameteri(GL_TEXTURE_2D,
+		GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,
+		GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
 	return true;
 }
@@ -70,6 +86,13 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+#if defined (_MSC_VER)
+	if (glewInit() != GLEW_OK) {
+		glfwTerminate();
+		return EXIT_FAILURE;
+	}
+#endif
+
 	// 
 	glfwSwapInterval(1);
 
@@ -82,19 +105,19 @@ int main()
 
 		// Set vertex array.
 		static const GLfloat vtx[] = {
-			-0.5f, -0.5f,
-			0.5f, -0.5f,
-			0.5f, 0.5f,
-			-0.5f, 0.5f,
+			-0.8f, -0.8f,
+			0.8f, -0.8f,
+			0.8f, 0.8f,
+			-0.8f, 0.8f,
 		};
 		glVertexPointer(2, GL_FLOAT, 0, vtx);	// glVertexPinter(size, type, stride, pointer);
-												// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
+											// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
 		
 		static const GLfloat texture_uv[] = {
-			0.0f, 1.0f,
-			1.0f, 1.0f,
-			1.0f, 0.0f,
-			0.0f, 0.0f
+			-2.5f, 0.0f,
+			2.5f, 0.0f,
+			2.5f, 5.0f,
+			-2.5f, 5.0f
 		};
 		glTexCoordPointer(2, GL_FLOAT, 0, texture_uv);
 
