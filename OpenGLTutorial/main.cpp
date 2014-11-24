@@ -67,7 +67,7 @@ int main()
 	}
 
 	// Initialize OpenGL and create window
-	if (!glfwOpenWindow(500, 400, // width, height
+	if (!glfwOpenWindow(640, 480, // width, height
 		0, 0, 0,              // number of R bit, G, B  // when set 0, default value is used.
 		0,                    // number of A bit
 		0, 0,                 // number of depth bit, stencil
@@ -96,32 +96,58 @@ int main()
 	// 
 	glfwSwapInterval(1);
 
-	// Setup Viewport.
-	// (-1, -1) - (1, 1) -> (0, 0) - (500, 400)
-	glViewport(0, 0, 500, 400);
+	GLint current_framebuffer;
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &current_framebuffer);
 
-	// Setup Projection matrix. ìäâeçsóÒ
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();  // Load Identity matrix.
-	glOrtho(0.0f, 500.0f, 0.0f, 400.0f, -1.0f, 1.0f); // glOrtho(left, right, bottom, top, near, far);
+	// Generate texture for offscreen buffer.
+	GLuint fbo_texture_id;
+	glGenTextures(1, &fbo_texture_id);
 
+	glBindTexture(GL_TEXTURE_2D, fbo_texture_id);
+
+	glTexImage2D(GL_TEXTURE_2D,
+		0, GL_RGB, 256, 256,
+		0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	// Setup framebuffer.
+	GLuint framebuffer_id;
+	glGenFramebuffers(1, &framebuffer_id);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+	glFramebufferTexture2D(GL_FRAMEBUFFER,
+		GL_COLOR_ATTACHMENT0,
+		GL_TEXTURE_2D,
+		fbo_texture_id, 0);
+
+	float angle = 0.0f;
 	// Loop while window opened.
 	while (glfwGetWindowParam(GLFW_OPENED)) {
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+
+		// Setup Viewport.
+		glViewport(0, 0, 256, 256);
+
 		// Set clear color, and then, clear buffer.
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		angle += 0.02f;
+		const float x_ofs = std::sin(angle) * 0.5f;
+
 		// Set vertex array.
-		const GLfloat vtx[] = {  // modify static const to const 
-			100.0f, 100.0f,
-			200.0f, 100.0f,
-			200.0f, 200.0f,
-			100.0f, 200.0f
+		const GLfloat vtx[] = {
+			-0.5f + x_ofs, -0.5f,
+			0.5f + x_ofs, -0.5f,
+			0.5f + x_ofs, 0.5f,
+			-0.5f + x_ofs, 0.5f,
 		};
 		glVertexPointer(2, GL_FLOAT, 0, vtx);	// glVertexPinter(size, type, stride, pointer);
 											// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
 		
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -130,10 +156,59 @@ int main()
 		// Reset mode
 		glDisableClientState(GL_VERTEX_ARRAY);
 
+		///
+		glBindFramebuffer(GL_FRAMEBUFFER, current_framebuffer);
+
+		// Setup Viewport.
+		glViewport(0, 0, 640, 480);
+
+		// Set clear color, and then, clear buffer.
+		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 3; ++x) {
+				float x_ofs = x * 0.55f - 0.8f;
+				float y_ofs = y * 0.55f - 0.8f;
+				const GLfloat vtx2[] = {
+					0.0f + x_ofs, 0.0f + y_ofs,
+					0.5f + x_ofs, 0.0f + y_ofs,
+					0.5f + x_ofs, 0.5f + y_ofs,
+					0.0f + x_ofs, 0.5f + y_ofs,
+				};
+				glVertexPointer(2, GL_FLOAT, 0, vtx2);
+				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+				static const GLfloat texture_uv[] = {
+					0.0f, 0.0f,
+					1.0f, 0.0f,
+					1.0f, 1.0f,
+					0.0f, 1.0f,
+				};
+				glTexCoordPointer(2, GL_FLOAT, 0, texture_uv);
+
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, fbo_texture_id);
+
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+				glDrawArrays(GL_QUADS, 0, 4);	// glDrawArrays(mode, first, count);
+
+				// Reset mode
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
+
+				glDisable(GL_TEXTURE_2D);
+			}
+		}
+
 		glfwSwapBuffers();
 	}
-
+	
 	glDeleteTextures(1, &texture_id);
+	glDeleteTextures(1, &fbo_texture_id);
+	glDeleteFramebuffers(1, &framebuffer_id);
 
 	glfwTerminate();
 
