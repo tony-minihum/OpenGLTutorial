@@ -53,13 +53,7 @@ bool setupTexture(const GLuint id, const char* file, const int width, const int 
 	glTexParameteri(GL_TEXTURE_2D,
 		GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D,
-		GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-	GLfloat border_color[] = {
-		1.0f, 0.0f, 0.0f, 1.0f
-	};
-	glTexParameterfv(GL_TEXTURE_2D,
-		GL_TEXTURE_BORDER_COLOR, border_color);
+		GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 	return true;
 }
@@ -86,7 +80,7 @@ int main()
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
 	
-	if (!setupTexture(texture_id, "sample2.raw", 32, 32)) {
+	if (!setupTexture(texture_id, "sample.raw",256, 256)) {
 		glDeleteTextures(1, &texture_id);
 		glfwTerminate();
 		return EXIT_FAILURE;
@@ -120,14 +114,18 @@ int main()
 											// size := Specifies the number of coordinates per vertex. Must be 2, 3, or 4. The initial value is 4.
 		
 		static const GLfloat texture_uv[] = {
-			0.0f, 0.0f,
-			1.0f, 0.0f,
+			0.0f, 1.0f,
 			1.0f, 1.0f,
-			0.0f, 1.0f
+			1.0f, 0.0f,
+			0.0f, 0.0f
 		};
 		glTexCoordPointer(2, GL_FLOAT, 0, texture_uv);
 
-		// Set mode
+		// Enable blending
+		glEnable(GL_BLEND);
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glEnable(GL_TEXTURE_2D);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
